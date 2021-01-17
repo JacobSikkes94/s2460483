@@ -58,6 +58,10 @@ def calc_Euclidean(X, Y):  # calculate distance covered
 for p in df_list:
     p['Euclidean Distance'] = p.apply(lambda row: calc_Euclidean(row.X, row.Y), axis=1) 
     p['Euclidean Distance Diff'] = abs(p['Euclidean Distance'] - p['Euclidean Distance'].shift(1))
+    #%% remove wrong distances due to leaving the field
+    p['Timestamp'] = p['Timestamp'].apply(pd.to_numeric, errors='coerce')  # object to int64
+    p['Diff Timestamp'] = p['Timestamp'] - p['Timestamp'].shift(1) 
+    p.loc[(p['Diff Timestamp'] > 100.0),  'Euclidean Distance Diff'] = 0
     p['Total Euclidean Distance'] = np.cumsum(p['Euclidean Distance Diff'])
     #%% calculate HID
     p['relative speed'] = p['relative speed'].apply(pd.to_numeric, errors='coerce')  # object to int64
